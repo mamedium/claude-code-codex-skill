@@ -221,7 +221,8 @@ except Exception:
 ' "$f" 2>/dev/null
 }
 
-# Best-effort: "model effort" from the session's newest turn_context, so a resume
+# Best-effort: "model|effort" from the session's newest turn_context (either side may
+# be empty when unrecorded or not a plain slug), so a resume
 # with no --model/--effort keeps what the session ran on (the weekly-balance pick
 # means that is not always DEFAULT_MODEL). Silent when unavailable.
 session_model_from_rollout() { # $1 = session id
@@ -246,8 +247,10 @@ try:
 except OSError:
     pass
 ok = re.compile(r"^[A-Za-z0-9._-]+$")
-if ok.match(model or "") and ok.match(effort or ""):
-    sys.stdout.write(model + " " + effort)
+model = model if isinstance(model, str) and ok.match(model) else ""
+effort = effort if isinstance(effort, str) and ok.match(effort) else ""
+if model or effort:
+    sys.stdout.write(model + "|" + effort)
 ' "$f" 2>/dev/null
 }
 
@@ -676,10 +679,9 @@ resume_codex() {
     if [[ ( -z "$model_flag" && -z "${CODEX_DEFAULT_MODEL:-}" ) || ( -z "$effort_flag" && -z "${CODEX_DEFAULT_EFFORT:-}" ) ]]; then
         local recorded
         recorded=$(session_model_from_rollout "$session_id")
-        if [[ -n "$recorded" ]]; then
-            [[ -z "$model_flag" && -z "${CODEX_DEFAULT_MODEL:-}" ]]   && MODEL="${recorded%% *}"
-            [[ -z "$effort_flag" && -z "${CODEX_DEFAULT_EFFORT:-}" ]] && EFFORT="${recorded#* }"
-        fi
+        local rec_model="${recorded%%|*}" rec_effort="${recorded#*|}"
+        [[ -n "$rec_model" && -z "$model_flag" && -z "${CODEX_DEFAULT_MODEL:-}" ]]    && MODEL="$rec_model"
+        [[ -n "$rec_effort" && -z "$effort_flag" && -z "${CODEX_DEFAULT_EFFORT:-}" ]] && EFFORT="$rec_effort"
     fi
 
     # Resume from the session's OWN directory unless --dir overrides: codex

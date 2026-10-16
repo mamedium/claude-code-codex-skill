@@ -3,7 +3,7 @@
 
 Codex writes a `rate_limits` block into every session rollout. The newest
 reading of the `codex` pool's weekly (10080-minute) window says how much is used
-and when it resets. Other pools (per-model limits such as `codex_bengalfox`) and
+and when it resets. Other pools (per-model limits such as `codex_other`) and
 other windows (5-hour) are ignored, and a reading older than MAX_AGE_H counts as
 no reading, because usage from elsewhere only makes an old reading look better. The band is the
 balance left minus the time left, in points:
@@ -86,9 +86,12 @@ def last_reading(path):
 
 
 def band(primary, now):
-    used = float(primary.get("used_percent", 0))
-    window_s = float(primary.get("window_minutes", 0)) * 60
-    resets_at = float(primary.get("resets_at", 0))
+    try:
+        used = float(primary["used_percent"])
+        window_s = float(primary["window_minutes"]) * 60
+        resets_at = float(primary["resets_at"])
+    except (KeyError, TypeError, ValueError):
+        return None  # a malformed reading is no reading; older files may still hold one
     if window_s <= 0:
         return None
     if resets_at <= now:  # the window rolled over since this reading

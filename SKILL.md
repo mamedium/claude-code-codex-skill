@@ -20,7 +20,7 @@ Codex is GPT-6.1 Sol by default — a different model with a different reasoning
 | `pace` (and `unknown`) | within 20 pts | `gpt-6.1-sol` | `gpt-6-astra` + `xhigh` |
 | `low` | 20+ pts behind, or under 15% left | `gpt-6.1-sol` | `gpt-6.1-sol` + `xhigh` |
 
-Only the `codex` pool's weekly (10080-minute) window counts; per-model pools and 5-hour windows are ignored, and a reading older than 12h counts as `unknown`. Pass `--complex` on hard implementation, deep review and gnarly debugging. An explicit `--model` / `--effort` always wins, and `CODEX_DEFAULT_MODEL` pins one model and turns the balance pick off. `CODEX_START` names the band (`budget=high`). `resume` with no `--model`/`--effort` (and no `CODEX_DEFAULT_*` pin) keeps the session's own recorded model and effort, so a thread the balance put on Astra stays on Astra.
+Only the `codex` pool's weekly (10080-minute) window counts; per-model pools and 5-hour windows are ignored, and a reading older than 12h counts as `unknown`. Pass `--complex` on hard implementation, deep review and gnarly debugging. An explicit `--model` / `--effort` always wins, and `CODEX_DEFAULT_MODEL` pins one model and turns the balance pick off. `CODEX_START` names the band (`budget=high`). `resume` with no `--model`/`--effort` (and no `CODEX_DEFAULT_*` pin) keeps the session's own recorded model and its recorded effort (each on its own; a field the session did not record falls back to the default), so a thread the balance put on Astra stays on Astra.
 
 | Model | Slug | Use it for |
 |-------|------|-----------|
